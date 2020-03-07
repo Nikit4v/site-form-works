@@ -25,20 +25,23 @@ def product_view(request, pk):
     form = ReviewForm
     is_exist = False
     if request.method == 'POST':
+        form = ReviewForm(request.POST)
         for object in Review.objects.all():
             if object.csrf == request.POST["csrfmiddlewaretoken"]:
                 is_exist = True
         if not is_exist:
-            review = Review()
-            review.product = product
-            review.text = request.POST["text"]
-            review.csrf = request.POST["csrfmiddlewaretoken"]
-            review.save()
+            if form.is_valid():
+                review = Review()
+                review.product = product
+                review.text = request.POST["text"]
+                review.csrf = request.POST["csrfmiddlewaretoken"]
+                review.save()
 
     context = {
         'reviews': Review.objects.all(),
         'form': form,
-        'product': product
+        'product': product,
+        'is_review_exist': is_exist
     }
 
     return render(request, template, context)
